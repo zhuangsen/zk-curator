@@ -5,14 +5,12 @@ import java.util.List;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.Stat;
 
 public class CuratorOperator {
 
@@ -84,11 +82,11 @@ public class CuratorOperator {
 		
 		// 创建节点
 		String nodePath = "/super/imooc";
-		byte[] data = "superme".getBytes();
-		cto.client.create().creatingParentsIfNeeded()
-			.withMode(CreateMode.PERSISTENT)
-			.withACL(Ids.OPEN_ACL_UNSAFE)
-			.forPath(nodePath, data);
+//		byte[] data = "superme".getBytes();
+//		cto.client.create().creatingParentsIfNeeded()
+//			.withMode(CreateMode.PERSISTENT)
+//			.withACL(Ids.OPEN_ACL_UNSAFE)
+//			.forPath(nodePath, data);
 		
 		// 更新节点数据
 //		byte[] newData = "batman".getBytes();
@@ -130,14 +128,25 @@ public class CuratorOperator {
 		
 		// 为节点添加watcher
 		// NodeCache: 监听数据节点的变更，会触发事件
-//		final NodeCache nodeCache = new NodeCache(cto.client, nodePath);
-//		// buildInitial : 初始化的时候获取node的值并且缓存
-//		nodeCache.start(true);
-//		if (nodeCache.getCurrentData() != null) {
-//			System.out.println("节点初始化数据为：" + new String(nodeCache.getCurrentData().getData()));
-//		} else {
-//			System.out.println("节点初始化数据为空...");
-//		}
+		final NodeCache nodeCache = new NodeCache(cto.client, nodePath);
+		// buildInitial : 初始化的时候获取node的值并且缓存
+		nodeCache.start(true);
+		if (nodeCache.getCurrentData() != null) {
+			System.out.println("节点初始化数据为：" + new String(nodeCache.getCurrentData().getData()));
+		} else {
+			System.out.println("节点初始化数据为空...");
+		}
+
+//		//lambda
+//		nodeCache.getListenable().addListener(()->{
+//			if (nodeCache.getCurrentData() == null) {
+//				System.out.println("空");
+//				return;
+//			}
+//			String data = new String(nodeCache.getCurrentData().getData());
+//			System.out.println("节点路径：" + nodeCache.getCurrentData().getPath() + "数据：" + data);
+//		});
+//
 //		nodeCache.getListenable().addListener(new NodeCacheListener() {
 //			public void nodeChanged() throws Exception {
 //				if (nodeCache.getCurrentData() == null) {
@@ -194,7 +203,7 @@ public class CuratorOperator {
 			}
 		});*/
 		
-		Thread.sleep(3000);
+		Thread.sleep(100000);
 		
 		cto.closeZKClient();
 		boolean isZkCuratorStarted2 = cto.client.isStarted();
