@@ -21,7 +21,7 @@ import com.imooc.utils.RedisConfig;
 public class Client2 {
 
 	public CuratorFramework client = null;
-	public static final String zkServerPath = "192.168.1.110:2181";
+	public static final String zkServerPath = "47.104.189.193:2181";
 
 	public Client2() {
 		RetryPolicy retryPolicy = new RetryNTimes(3, 5000);

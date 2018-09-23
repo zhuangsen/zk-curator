@@ -14,11 +14,12 @@ import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 
 import com.imooc.utils.AclUtils;
+import org.apache.zookeeper.data.Stat;
 
 public class CuratorAcl {
 
 	public CuratorFramework client = null;
-	public static final String zkServerPath = "192.168.1.110:2181";
+	public static final String zkServerPath = "47.104.189.193:2181";
 
 	public CuratorAcl() {
 		RetryPolicy retryPolicy = new RetryNTimes(3, 5000);
@@ -41,8 +42,9 @@ public class CuratorAcl {
 		boolean isZkCuratorStarted = cto.client.isStarted();
 		System.out.println("当前客户的状态：" + (isZkCuratorStarted ? "连接中" : "已关闭"));
 		
-		String nodePath = "/acl/father/child/sub";
-		
+		String nodePath = "/acl/imooc";
+//		String nodePath = "/acl/father/child/sub";
+
 		List<ACL> acls = new ArrayList<ACL>();
 		Id imooc1 = new Id("digest", AclUtils.getDigestUserPwd("imooc1:123456"));
 		Id imooc2 = new Id("digest", AclUtils.getDigestUserPwd("imooc2:123456"));
@@ -58,20 +60,20 @@ public class CuratorAcl {
 //				.forPath(nodePath, data);
 		
 
-		cto.client.setACL().withACL(acls).forPath("/curatorNode");
+//		cto.client.setACL().withACL(acls).forPath("/curatorNode");
 		
 		// 更新节点数据
 //		byte[] newData = "batman".getBytes();
 //		cto.client.setData().withVersion(0).forPath(nodePath, newData);
 		
 		// 删除节点
-//		cto.client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(0).forPath(nodePath);
+//		cto.client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(1).forPath(nodePath);
 		
 		// 读取节点数据
-//		Stat stat = new Stat();
-//		byte[] data = cto.client.getData().storingStatIn(stat).forPath(nodePath);
-//		System.out.println("节点" + nodePath + "的数据为: " + new String(data));
-//		System.out.println("该节点的版本号为: " + stat.getVersion());
+		Stat stat = new Stat();
+		byte[] data = cto.client.getData().storingStatIn(stat).forPath(nodePath);
+		System.out.println("节点" + nodePath + "的数据为: " + new String(data));
+		System.out.println("该节点的版本号为: " + stat.getVersion());
 		
 		
 		cto.closeZKClient();
