@@ -128,14 +128,14 @@ public class CuratorOperator {
 		
 		// 为节点添加watcher
 		// NodeCache: 监听数据节点的变更，会触发事件
-		final NodeCache nodeCache = new NodeCache(cto.client, nodePath);
-		// buildInitial : 初始化的时候获取node的值并且缓存
-		nodeCache.start(true);
-		if (nodeCache.getCurrentData() != null) {
-			System.out.println("节点初始化数据为：" + new String(nodeCache.getCurrentData().getData()));
-		} else {
-			System.out.println("节点初始化数据为空...");
-		}
+//		final NodeCache nodeCache = new NodeCache(cto.client, nodePath);
+//		// buildInitial : 初始化的时候获取node的值并且缓存
+//		nodeCache.start(true);
+//		if (nodeCache.getCurrentData() != null) {
+//			System.out.println("节点初始化数据为：" + new String(nodeCache.getCurrentData().getData()));
+//		} else {
+//			System.out.println("节点初始化数据为空...");
+//		}
 
 //		//lambda
 //		nodeCache.getListenable().addListener(()->{
@@ -161,15 +161,15 @@ public class CuratorOperator {
 		
 		// 为子节点添加watcher
 		// PathChildrenCache: 监听数据节点的增删改，会触发事件
-/*		String childNodePathCache =  nodePath;
+		String childNodePathCache =  nodePath;
 		// cacheData: 设置缓存节点的数据状态
 		final PathChildrenCache childrenCache = new PathChildrenCache(cto.client, childNodePathCache, true);
-		*//**
+		/**
 		 * StartMode: 初始化方式
 		 * POST_INITIALIZED_EVENT：异步初始化，初始化之后会触发事件
 		 * NORMAL：异步初始化
 		 * BUILD_INITIAL_CACHE：同步初始化
-		 *//*
+		 */
 		childrenCache.start(StartMode.POST_INITIALIZED_EVENT);
 		
 		List<ChildData> childDataList = childrenCache.getCurrentData();
@@ -178,36 +178,43 @@ public class CuratorOperator {
 			String childData = new String(cd.getData());
 			System.out.println(childData);
 		}
+
+		//lambda
+		childrenCache.getListenable().addListener((client,event)-> myChildEvent(client,event));
 		
-		childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
-			public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-				if(event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)){
-					System.out.println("子节点初始化ok...");
-				}
-				
-				else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)){
-					String path = event.getData().getPath();
-					if (path.equals(ADD_PATH)) {
-						System.out.println("添加子节点:" + event.getData().getPath());
-						System.out.println("子节点数据:" + new String(event.getData().getData()));
-					} else if (path.equals("/super/imooc/e")) {
-						System.out.println("添加不正确...");
-					}
-					
-				}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)){
-					System.out.println("删除子节点:" + event.getData().getPath());
-				}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)){
-					System.out.println("修改子节点路径:" + event.getData().getPath());
-					System.out.println("修改子节点数据:" + new String(event.getData().getData()));
-				}
-			}
-		});*/
+//		childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
+//			public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+//				myChildEvent(client,event);
+//			}
+//		});
 		
 		Thread.sleep(100000);
 		
 		cto.closeZKClient();
 		boolean isZkCuratorStarted2 = cto.client.isStarted();
 		System.out.println("当前客户的状态：" + (isZkCuratorStarted2 ? "连接中" : "已关闭"));
+	}
+
+	private static void myChildEvent(CuratorFramework client, PathChildrenCacheEvent event){
+		if(event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)){
+			System.out.println("子节点初始化ok...");
+		}
+
+		else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)){
+			String path = event.getData().getPath();
+			if (path.equals(ADD_PATH)) {
+				System.out.println("添加子节点:" + event.getData().getPath());
+				System.out.println("子节点数据:" + new String(event.getData().getData()));
+			} else if (path.equals("/super/imooc/e")) {
+				System.out.println("添加不正确...");
+			}
+
+		}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)){
+			System.out.println("删除子节点:" + event.getData().getPath());
+		}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)){
+			System.out.println("修改子节点路径:" + event.getData().getPath());
+			System.out.println("修改子节点数据:" + new String(event.getData().getData()));
+		}
 	}
 	
 	public final static String ADD_PATH = "/super/imooc/d";
